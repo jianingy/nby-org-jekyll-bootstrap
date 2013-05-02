@@ -8,6 +8,14 @@ exec 2>&1
 
 root="$(readlink -e $(dirname $0)/..)"
 
+# lock
+if ! ln -s ".#$USER@$HOSTNAME:$$" $root/.build.lock; then
+  echo 'another process is running'
+  exit 111
+fi
+
+trap "rm -f $root/.build.lock" EXIT
+
 . $root/scripts/activate-local-gem.sh
 
 mkdir -pv source
